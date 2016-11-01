@@ -6,6 +6,8 @@ var orderModels = require('../models/orders');
 
 var Order = React.createClass({
   render: function(){
+    var self = this;
+
     var order = this.props.orderCollection.map(function(orderItem){
       return(
         <li key={orderItem.cid}>
@@ -59,6 +61,10 @@ var OrderingContainer = React.createClass({
     var menuItems  = new menuModels.MenuCollection();
     var orderCollection = new orderModels.OrderItemCollection();
 
+    var orderData = JSON.parse(localStorage.getItem('order'));
+    orderCollection.add(orderData);
+    // orderCollection.fetch();
+
     menuItems.add([
       {title: 'Pad Thai', price: '6.75'},
       {title: 'Spring Roll', price: '1.50'},
@@ -75,12 +81,23 @@ var OrderingContainer = React.createClass({
     var orderItemData = menuItem.toJSON();
 
     delete orderItemData.cid;
+    // orderCollection.create(orderItemData);
     orderCollection.add([orderItemData]);
+    this.updateOrder();
 
     this.setState({orderCollection: orderCollection});
   },
-  removeItem: function(){
-
+  removeItem: function(itemToRemove){
+    var orderCollection = this.state.orderCollection;
+    // itemToRemove.destroy();
+    orderCollection.remove(itemToRemove);
+    this.updateOrder();
+    this.setState({'orderCollection': orderCollection});
+  },
+  updateOrder: function(){
+    var orderCollection = this.state.orderCollection;
+    var orderData = JSON.stringify(orderCollection.toJSON());
+    localStorage.setItem('order', orderData);
   },
   placeOrder: function(){
     var newOrder = new orderModels.Order();
